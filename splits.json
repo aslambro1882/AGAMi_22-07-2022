@@ -1,0 +1,65 @@
+[
+    {
+        "examno": "8",
+        "splitno": "1",
+        "display_order": "1",
+        "splittype": "MARKS_ENTRY",
+        "splittitle": "MT"
+    },
+    {
+        "examno": "8",
+        "splitno": "4",
+        "display_order": "2",
+        "splittype": "MARKS_ENTRY",
+        "splittitle": "CQ"
+    },
+    {
+        "examno": "8",
+        "splitno": "5",
+        "display_order": "3",
+        "splittype": "MARKS_ENTRY",
+        "splittitle": "MCQ"
+    },
+    {
+        "examno": "8",
+        "splitno": "6",
+        "display_order": "4",
+        "splittype": "MARKS_ENTRY",
+        "splittitle": "Prac"
+    },
+    {
+        "examno": "8",
+        "splitno": "7",
+        "display_order": "5",
+        "splittype": "MARKS_ENTRY",
+        "splittitle": "Highest"
+    },
+    {
+        "examno": "8",
+        "splitno": "8",
+        "display_order": "6",
+        "splittype": "MARKS_ENTRY",
+        "splittitle": "20% of MT Ave"
+    },
+    {
+        "examno": "8",
+        "splitno": "9",
+        "display_order": "7",
+        "splittype": "MARKS_ENTRY",
+        "splittitle": "75% of Exam"
+    },
+    {
+        "examno": "8",
+        "splitno": "10",
+        "display_order": "8",
+        "splittype": "MARKS_ENTRY",
+        "splittitle": "5% of Atten"
+    },
+    {
+        "examno": "8",
+        "splitno": "11",
+        "display_order": "9",
+        "splittype": "TOTAL",
+        "splittitle": "Exam Total"
+    }
+]
