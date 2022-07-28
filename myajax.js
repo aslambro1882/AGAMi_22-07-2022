@@ -1,4 +1,8 @@
 $(document).ready(function () {
+
+    
+
+
     function showSplits() {
         $.ajax({
             url: "splits.json",
