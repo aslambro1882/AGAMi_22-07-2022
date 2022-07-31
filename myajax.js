@@ -79,22 +79,7 @@ $(document).ready(function () {
                             let studentPromise = getStudent();
                             studentPromise
                                 .then((result) => {
-                                    // showTableHeaders();
                                     showTableData(
-                                        gradesArray,
-                                        splitsArray,
-                                        coursesArray,
-                                        studentObj
-                                    );
-
-                                    showTableData2(
-                                        gradesArray,
-                                        splitsArray,
-                                        coursesArray,
-                                        studentObj
-                                    );
-
-                                    datatable5(
                                         gradesArray,
                                         splitsArray,
                                         coursesArray,
@@ -147,53 +132,6 @@ $(document).ready(function () {
         }
     }
 
-    function showTableData(gradesArray, splitsArray, coursesArray, studentObj) {
-        let htmlH;
-        htmlH += "<th> </th>";
-        for (let i = 0; i < splitsArray.length; i++) {
-            htmlH += `<th class='text-center'>${splitsArray[i].splittitle}</th>`;
-        }
-        htmlH += "<th>GP</th>";
-        $("#split").html(htmlH);
-
-        let html;
-        let gpa = 0;
-        for (let i = 0; i < coursesArray.length; i++) {
-            html += `<tr><td class='fw-bold'>${coursesArray[i].coursetitle}</td>`;
-            let m;
-            for (let j = 0; j < splitsArray.length; j++) {
-                for (let k = 0; k < studentObj?.marks?.length; k++) {
-                    if (
-                        coursesArray[i].coursecode ==
-                            studentObj.marks[k].coursecode &&
-                        splitsArray[j].splitno == studentObj.marks[k].splitno
-                    ) {
-                        m = studentObj.marks[k].marks;
-                        if (m == null) m = "-";
-                        html += `<td class='text-center'>${m}</td>`;
-                        break;
-                    }
-                }
-            }
-
-            let gp = getGP(m, gradesArray);
-            if (gp >= 0) {
-                gpa += gp;
-            }
-            html += `<td class='text-center'>${gp}</td></tr>`;
-        }
-        $("#dpt").html(html);
-
-        let GPAHTML = gpa / splitsArray.length;
-        $("#GPA").html(GPAHTML?.toFixed(2));
-
-        let LGHTML = getLG(gradesArray, GPAHTML);
-        $("#LG").html(LGHTML);
-
-        let resultHTML = getResult(LGHTML);
-        $("#result").html(resultHTML);
-    }
-
     function showTableData2(
         gradesArray,
         splitsArray,
@@ -243,18 +181,132 @@ $(document).ready(function () {
         });
     }
 
-    function datatable5(gradesArray, splitsArray, coursesArray, studentObj) {
-        let template = $(`<div class="table-responsive">
-		<table
-			class="table table-bordered table-striped table-hover table-light"
-			<thead>
-				<tr>
-				<th>hello</th>
-				</tr>
-			</thead>
-			<tbody id="dpt"></tbody>
-		</table>
-	</div>`).appendTo(`$result_container1`);
+    function showTableData(
+        gradesArray,
+        splitsArray,
+        coursesArray,
+        studentArray
+    ) {
+        $.each(studentArray, (indexInStudent, valueOfStudent) => {
+            let template = $(`
+            <div class="d-flex justify-content-center align-items-center">
+                <div class="table-responsive my-5 w-75">
+                    <div class="container text-center">
+                        
+                        <h3 class="fw-bold">MAHILA COLLEGE CHATTOGRAM</h3>
+                        <p>49, Enayet Bazar, Chattogram</p>
+                        <h3 class="btn btn-info fw-bold btn-lg">Academic
+                            Transcript
+                        </h3>
+                        <h5>${valueOfStudent.name_en}</h5>
+                        <p>HSC (Humanities), 1st Year-${
+                            valueOfStudent.academicyear
+                        }, ID: ${valueOfStudent.stdid},
+                            Sesstion: ${valueOfStudent.academicsession}</p>
+                    </div>
+                    <table class="maruf-table table table-bordered table-striped table-hover table-light">
+                        <thead>
+                            <tr>
+                                <th></th>
+                                ${splitsArray
+                                    .map(
+                                        (split) =>
+                                            `<th>${split.splittitle}</th>`
+                                    )
+                                    .join("")}
+                                <th>GP</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                        </tbody>
+                    </table>
+                    <div class="d-flex justify-content-center">
+                        <div>
+                            <table
+                                class="table table-bordered table-striped table-hover table-light">
+                                <thead>
+                                    <tr>
+                                        <td></td>
+                                        <td class="text-danger">Exams</td>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr>
+                                        <td>Total Marks</td>
+                                        <td id="TM"></td>
+                                    </tr>
+                                    <tr>
+                                        <td>GPA</td>
+                                        <td id="GPA"></td>
+                                    </tr>
+                                    <tr>
+                                        <td>LG</td>
+                                        <td id="LG"></td>
+                                    </tr>
+                                    <tr>
+                                        <td>Result</td>
+                                        <td id="result"></td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                    <p class="text-center">Supported by: AGAMiLabs Ltd. (www.agamilabs.com)
+                        </p>
+                </div>
+            </div>
+            `).appendTo(`#result_container1`);
+            let isPass = true;
+
+            $.each(coursesArray, (indexInCourse, valueOfCourse) => {
+                isPass = true;
+                let row = $(`
+                <tr>
+                    <th>${valueOfCourse.coursetitle}</th>
+                </tr>
+                `);
+                $(`.maruf-table tbody`, template).append(row);
+
+                $.each(splitsArray, (indexInSplit, valueOfSplit) => {
+                    let markObj = valueOfStudent.marks.find(
+                        (mark) =>
+                            mark.coursecode == valueOfCourse.coursecode &&
+                            mark.splitno == valueOfSplit.splitno
+                    );
+                    let mark;
+                    let totalMark;
+                    if (markObj && markObj.marks) {
+                        mark = Math.ceil(markObj.marks);
+                        if (mark < markObj.min_to_pass) {
+                            console.log("hello");
+                            isPass = false;
+                            row.append(`<td class="text-danger">${mark}</td>`);
+                        } else {
+                            row.append(`<td>${mark}</td>`);
+                            if (valueOfSplit.splittitle == `Exam Total`) {
+                                console.log(valueOfSplit);
+                            }
+                        }
+                    } else {
+                        row.append(`<td>-</td>`);
+                    }
+
+                    if (isPass) {
+                        if (valueOfSplit.splittype == `TOTAL`) {
+                            row.append(`<td>${getGP(mark, gradesArray)}</td>`);
+                            console.log(mark);
+                            totalMark += mark;
+                        }
+                    } else {
+                        if (valueOfSplit.splittype == `TOTAL`) {
+                            row.append(`<td>-</td>`);
+                        }
+                    }
+                    console.log("total mark:", totalMark);
+                });
+            });
+        });
+        console.log("total mark:", totalMark);
     }
 });
 //
