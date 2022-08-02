@@ -188,6 +188,7 @@ $(document).ready(function () {
         studentArray
     ) {
         $.each(studentArray, (indexInStudent, valueOfStudent) => {
+            let failedCourses = [];
             let template = $(`
             <div class="d-flex justify-content-center align-items-center">
                 <div class="table-responsive my-5 w-75">
@@ -204,23 +205,23 @@ $(document).ready(function () {
                         }, ID: ${valueOfStudent.stdid},
                             Sesstion: ${valueOfStudent.academicsession}</p>
                     </div>
-                    <table class="maruf-table table table-bordered table-striped table-hover table-light">
+                    <table class="student-table table table-bordered table-striped table-hover table-light">
                         <thead>
                             <tr>
                                 <th></th>
                                 ${splitsArray
                                     .map(
                                         (split) =>
-                                            `<th>${split.splittitle}</th>`
+                                            `<th class="text-center">${split.splittitle}</th>`
                                     )
                                     .join("")}
-                                <th>GP</th>
+                                <th class="text-center">GP</th>
                             </tr>
                         </thead>
                         <tbody>
                         </tbody>
                     </table>
-                    <div class="d-flex justify-content-center">
+                    <div class="d-flex justify-content-around">
                         <div>
                             <table
                                 class="table table-bordered table-striped table-hover table-light">
@@ -250,6 +251,16 @@ $(document).ready(function () {
                                 </tbody>
                             </table>
                         </div>
+                        <div>
+                            <table
+                                class="failed-list table table-bordered table-striped table-hover table-light">
+                                <thead>
+                                    <tr>
+                                        <th>Failed in:</th>
+                                    </tr>
+                                </thead>
+                            </table>
+                        </div>
                     </div>
                     <p class="text-center">Supported by: AGAMiLabs Ltd. (www.agamilabs.com)
                         </p>
@@ -257,6 +268,11 @@ $(document).ready(function () {
             </div>
             `).appendTo(`#result_container1`);
             let isPass = true;
+            let totalMark = 0;
+            let totalGP = 0;
+            let GPA;
+            let result;
+            let LG;
 
             $.each(coursesArray, (indexInCourse, valueOfCourse) => {
                 isPass = true;
@@ -265,7 +281,7 @@ $(document).ready(function () {
                     <th>${valueOfCourse.coursetitle}</th>
                 </tr>
                 `);
-                $(`.maruf-table tbody`, template).append(row);
+                $(`.student-table tbody`, template).append(row);
 
                 $.each(splitsArray, (indexInSplit, valueOfSplit) => {
                     let markObj = valueOfStudent.marks.find(
@@ -274,37 +290,86 @@ $(document).ready(function () {
                             mark.splitno == valueOfSplit.splitno
                     );
                     let mark;
-                    let totalMark;
                     if (markObj && markObj.marks) {
                         mark = Math.ceil(markObj.marks);
                         if (mark < markObj.min_to_pass) {
-                            console.log("hello");
+                            // console.log("hello");
                             isPass = false;
-                            row.append(`<td class="text-danger">${mark}</td>`);
+                            row.append(
+                                `<td class="text-danger text-center">${mark}</td>`
+                            );
+                            if (
+                                valueOfCourse.coursecode == markObj.coursecode
+                            ) {
+                                failedCourses.push(valueOfCourse.coursetitle);
+                            }
                         } else {
-                            row.append(`<td>${mark}</td>`);
+                            row.append(`<td class="text-center">${mark}</td>`);
                             if (valueOfSplit.splittitle == `Exam Total`) {
-                                console.log(valueOfSplit);
+                                totalMark += mark;
                             }
                         }
                     } else {
-                        row.append(`<td>-</td>`);
+                        row.append(`<td class="text-center">-</td>`);
                     }
 
                     if (isPass) {
                         if (valueOfSplit.splittype == `TOTAL`) {
-                            row.append(`<td>${getGP(mark, gradesArray)}</td>`);
-                            console.log(mark);
-                            totalMark += mark;
+                            row.append(
+                                `<td class="text-center">${getGP(
+                                    mark,
+                                    gradesArray
+                                )}</td>`
+                            );
+                            if (getGP(mark, gradesArray) > 0) {
+                                totalGP += parseFloat(getGP(mark, gradesArray));
+                            }
                         }
                     } else {
                         if (valueOfSplit.splittype == `TOTAL`) {
-                            row.append(`<td>-</td>`);
+                            row.append(`<td class="text-center">0.00</td>`);
                         }
                     }
-                    console.log("total mark:", totalMark);
                 });
             });
+            console.log(failedCourses);
+
+            GPA = totalGP / coursesArray.length;
+            $.each(gradesArray, (indexInGrades, valueOfGrades) => {
+                console.log(GPA, valueOfGrades.gradepoint);
+                if (GPA >= parseFloat(valueOfGrades.gradepoint)) {
+                    LG = valueOfGrades.lettergrade;
+                    console.log(valueOfGrades.gradepoint);
+                    return false;
+                }
+            });
+            // console.log(totalGP);
+            if (LG == "F") {
+                result = "Fail";
+            } else {
+                result = "Pass";
+            }
+            $(`#TM`, template).append(totalMark);
+            $(`#GPA`, template).append(GPA.toFixed(2));
+            $(`#LG`, template).append(LG);
+            $(`#result`, template).append(result);
+            console.log("Table loop end here ");
+
+            $.each(
+                failedCourses,
+                (indexInFailedCourses, valueOfFailedCourses) => {
+                    console.log(valueOfFailedCourses);
+                    let row = $(`
+                    
+                    <tbody>
+                        <tr>
+                            <td>${valueOfFailedCourses}</td>
+                        </tr>
+                    </tbody>
+                    `);
+                    $(`.failed-list`, template).append(row);
+                }
+            );
         });
         console.log("total mark:", totalMark);
     }
